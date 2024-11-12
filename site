@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesquisa de Imóveis</title>
+  <style>
+    /* Estilos Gerais */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f5f5f5;
+    }
+    h2, h3 {
+      text-align: center;
+    }
+
+    /* Estilos da Barra de Pesquisa */
+    .search-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .search-container div {
+      display: flex;
+      flex-direction: column;
+    }
+    .search-container label {
+      font-weight: bold;
+    }
+    .search-container select,
+    .search-container input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      min-width: 150px;
+    }
+    .search-container button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      background-color: #00796b;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .search-container button:hover {
+      background-color: #00695c;
+    }
+
+    /* Estilos dos Resultados */
+    .results-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .result-item {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      width: 250px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .result-item img {
+      width: 100%;
+      height: auto;
+      border-radius: 5px;
+    }
+    .result-item:hover {
+      transform: scale(1.05);
+    }
+
+    /* Estilos do Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 500px;
+      position: relative;
+      text-align: center;
+    }
+    .modal-content img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #333;
+    }
+    .buy-button {
+      background-color: #25D366;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+    .buy-button:hover {
+      background-color: #128C7E;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Encontre o seu imóvel ideal</h2>
+<div class="search-container">
+  <div>
+    <label for="negocio">Negócio</label><br>
+    <select id="negocio">
+      <option>Selecione</option>
+      <option>Comprar</option>
+      <option>Alugar</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="tipo">Tipo do Imóvel</label><br>
+    <select id="tipo">
+      <option>Selecione</option>
+      <option>Apartamento</option>
+      <option>Casa</option>
+      <option>Terreno</option>
+      <option>Village</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="valor-minimo">Valor mínimo</label><br>
+    <input type="number" id="valor-minimo" placeholder="R$ 0,00">
+  </div>
+
+  <div>
+    <label for="valor-maximo">Valor máximo</label><br>
+    <input type="number" id="valor-maximo" placeholder="R$ 0,00">
+  </div>
+
+  <div>
+    <label for="cidade">Cidade</label><br>
+    <select id="cidade">
+      <option>Selecione</option>
+      <option>Feira de Santana</option>
+      <option>Salvador</option>
+      <option>Litoral Norte</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="quartos">Quantidade de Quartos</label><br>
+    <input type="number" id="quartos" placeholder="Ex: 3">
+  </div>
+
+  <div>
+    <label for="suites">Número de Suítes</label><br>
+    <input type="number" id="suites" placeholder="Ex: 1">
+  </div>
+
+  <button onclick="pesquisar()">Pesquisar</button>
+</div>
+
+<h3>Resultados:</h3>
+<div id="resultados" class="results-container"></div>
+
+<!-- Modal para Detalhes do Imóvel -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="fecharModal()">&times;</span>
+    <img id="modal-img" src="" alt="Imagem do Imóvel">
+    <h4 id="modal-titulo"></h4>
+    <p id="modal-descricao"></p>
+    <p><strong>Valor:</strong> R$ <span id="modal-valor"></span></p>
+    <p><strong>Cidade:</strong> <span id="modal-cidade"></span></p>
+    <p><strong>Quartos:</strong> <span id="modal-quartos"></span></p>
+    <p><strong>Suítes:</strong> <span id="modal-suites"></span></p>
+    <button class="buy-button" onclick="comprarImovel()">Comprar</button>
+  </div>
+</div>
+
+<script>
+  // Dados de exemplo com novos atributos de Quartos e Suítes
+  const imoveis = [
+    { negocio: "Comprar", tipo: "Casa", valor: 600000, cidade: "Feira de Santana", quartos: 3, suites: 2, img: "https://scontent.xx.fbcdn.net/v/t1.15752-9/462564148_8683137648407634_1203831865201424611_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=0024fc&_nc_ohc=H7Z14QynF04Q7kNvgF9jvrZ&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.xx&oh=03_Q7cD1QEDBqxclse0wpV_f5wss5fabEvJLZAKrIxAt8D3FQopJg&oe=67599BDE", descricao: "Suite master com clouset👑 Condomínio Di Cavalcante." },
+    { negocio: "Comprar", tipo: "Casa", valor: 300000, cidade: "Feira de Santana", quartos: 2, suites: 1, img: "https://scontent.xx.fbcdn.net/v/t1.15752-9/462548743_908038931287799_5144338467444367063_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=0024fc&_nc_ohc=AZKrLuH9GYcQ7kNvgEoWBmV&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.xx&oh=03_Q7cD1QFkDOe9BvCK3hU6uL4fLE6fwKCJo_vlkxGfLCsqB3mr5A&oe=67599B25", descricao: "próximo a Avenida Noide Cerqueira,casa solta Área gourmet🍾" },
+    { negocio: "Comprar", tipo: "Casa", valor: 350000, cidade: "Feira de Santana", quartos: 3, suites: 1, img: "https://scontent.xx.fbcdn.net/v/t1.15752-9/462539942_840788664632814_73907525546604333_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=0024fc&_nc_ohc=6NiIgmIA8UEQ7kNvgG7rOUn&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.xx&oh=03_Q7cD1QGRszP-cgvuPMabCPBC68C5uqX_79TEJWGSV9sU33rCqg&oe=6759B403", descricao: "Possui armários planejados nos quartos e cozinha, energia solar, condomínio com toda infraestrutura de lazer e segurança e também com energia solar nas áreas comuns." },
+    { negocio: "Alugar", tipo: "Casa", valor: 2000, cidade: "Feira de Santana", quartos: 2, suites: 0, img: "https://via.placeholder.com/250", descricao: "Casa simples, ótima localização." },
+    { negocio: "Comprar", tipo: "Apartamento", valor: 300000, cidade: "Salvador", quartos: 3, suites: 1, img: "https://via.placeholder.com/250", descricao: "Apartamento central, perto de tudo." },
+    { negocio: "Comprar", tipo: "Terreno", valor: 50000, cidade: "Feira de Santana", quartos: 0, suites: 0, img: "https://via.placeholder.com/250", descricao: "Terreno para construção." },
+    { negocio: "Alugar", tipo: "Village", valor: 3000, cidade: "Litoral Norte", quartos: 3, suites: 1, img: "https://via.placeholder.com/250", descricao: "Village próximo à praia, com 3 quartos." }
+  ];
+
+  function pesquisar() {
+    const negocio = document.getElementById("negocio").value;
+    const tipo = document.getElementById("tipo").value;
+    const valorMinimo = parseFloat(document.getElementById("valor-minimo").value);
+    const valorMaximo = parseFloat(document.getElementById("valor-maximo").value);
+    const cidade = document.getElementById("cidade").value;
+    const quartos = parseInt(document.getElementById("quartos").value);
+    const suites = parseInt(document.getElementById("suites").value);
+
+    const resultados = imoveis.filter(imovel => {
+      return (negocio === "Selecione" || imovel.negocio === negocio) &&
+             (tipo === "Selecione" || imovel.tipo === tipo) &&
+             (!valorMinimo || imovel.valor >= valorMinimo) &&\
+             (!valorMaximo || imovel.valor <= valorMaximo) &&
+             (cidade === "Selecione" || imovel.cidade === cidade) &&
+             (!quartos || imovel.quartos === quartos) &&
+             (!suites || imovel.suites === suites);
+    });
+
+    const resultadosContainer = document.getElementById("resultados");
+    resultadosContainer.innerHTML = "";
+    resultados.forEach(imovel => {
+      const imovelElement = document.createElement("div");
+      imovelElement.classList.add("result-item");
+      imovelElement.innerHTML = `
+        <img src="${imovel.img}" alt="Imagem do Imóvel">
+        <h4>${imovel.tipo} - R$ ${imovel.valor}</h4>
+        <p>${imovel.cidade}</p>
+        <button onclick="abrirModal('${imovel.img}', '${imovel.tipo}', '${imovel.descricao}', ${imovel.valor}, '${imovel.cidade}', ${imovel.quartos}, ${imovel.suites})">Ver Detalhes</button>
+      `;
+      resultadosContainer.appendChild(imovelElement);
+    });
+  }
+
+  function abrirModal(img, tipo, descricao, valor, cidade, quartos, suites) {
+    document.getElementById("modal-img").src = img;
+    document.getElementById("modal-titulo").innerText = tipo;
+    document.getElementById("modal-descricao").innerText = descricao;
+    document.getElementById("modal-valor").innerText = valor;
+    document.getElementById("modal-cidade").innerText = cidade;
+    document.getElementById("modal-quartos").innerText = quartos;
+    document.getElementById("modal-suites").innerText = suites;
+
+    document.getElementById("modal").style.display = "flex";
+  }
+
+  function fecharModal() {
+    document.getElementById("modal").style.display = "none";
+  }
+
+  function comprarImovel() {
+    const whatsappLink = "https://wa.me/5571987805141"; // Substitua pelo número de WhatsApp real
+    window.open(whatsappLink, "_blank");
+  }
+</script>
+
+</body>
+</html>
